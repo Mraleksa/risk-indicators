@@ -25,7 +25,7 @@ function piv(){
 					
 	
 //1. Закупівлі з дискваліфікаціями всіх учасників, крім останнього
-var awards = data.getJSON().data.awards;
+var awards = data.getJSON().data//.awards;
 //var awardsLength = data.getJSON().data.awards.length;
 console.log(awards)
 //console.log(awardsLength)
