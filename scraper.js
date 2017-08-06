@@ -1,15 +1,14 @@
 var client = require('http-api-client');
-const fs = require('fs');
-var sqlite3 = require("sqlite3").verbose();
+//var sqlite3 = require("sqlite3").verbose();
 
 // Open a database handle
 var db = new sqlite3.Database("data.sqlite");
 
-var currentCount =  "2017-05-05T09:59:03.623987+03:00"
-var p=0; var p2=0;
+//var currentCount =  "2017-05-05T09:59:03.623987+03:00"
+//var p=0; var p2=0;
  
 function piv(){  
-p++;
+//p++;
 /*client.request({url: 'https://public.api.openprocurement.org/api/2.3/tenders?offset='+currentCount})
 		.then(function (data) {
 			var dataset = data.getJSON().data;			
@@ -27,10 +26,10 @@ p++;
 	
 //1. Закупівлі з дискваліфікаціями всіх учасників, крім останнього
 var awards = data.getJSON().data.awards;
-var awardsLength = data.getJSON().data.awards.length;
+//var awardsLength = data.getJSON().data.awards.length;
 console.log(awards)
-console.log(awardsLength)
-				console.log("hi!")
+//console.log(awardsLength)
+	
 /*
 var disqualification;
 	for (var p = 0; p < awardsLength; p++) {
@@ -47,7 +46,7 @@ var disqualification;
 //Закупівлі з дискваліфікаціями всіх учасників, крім останнього	
 				
 			
-			
+	/*		
 db.serialize(function() {
 db.run("CREATE TABLE IF NOT EXISTS data (dateModified TEXT,procurementMethod TEXT,numberOfBids INT)");
 var statement = db.prepare("INSERT INTO data VALUES (?,?,?)");
@@ -56,6 +55,7 @@ statement.run(item.dateModified,data.getJSON().data.procurementMethod,data.getJS
 
 statement.finalize();
 });
+*/
 	
 			
 					})
