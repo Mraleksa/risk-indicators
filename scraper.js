@@ -27,10 +27,13 @@ function piv(){
 //1. Закупівлі з дискваліфікаціями всіх учасників, крім останнього
 var awards = data.getJSON().data.awards;
 var awardsLength = data.getJSON().data.awards.length;
-console.log(awards)
-//console.log(awardsLength)
-	
-
+//console.log(awards)
+console.log(awardsLength)
+console.log(awards[0].status)	
+console.log(awards[1].status)
+console.log(awards[2].status)
+console.log(awards[awardsLength-1].status)				
+				
 var disqualification;
 	for (var p = 0; p < awardsLength; p++) {
 			//t = t + item.values[p].value.count;
