@@ -28,12 +28,13 @@ function piv(){
 var awards = data.getJSON().data.awards;
 var awardsLength = data.getJSON().data.awards.length;
 //console.log(awards)
-console.log(awardsLength)
+
 				
 				
 var disqualification;
 	for (var p = 0; p < awardsLength; p++) {
-	console.log(awards[p].status)
+		console.log(awards[p-1].status)
+		//if(awards[p-1].status=="unsuccessful"||awards[p-1].status=="unsuccessful")
 	}
 	console.log(disqualification)
 	
