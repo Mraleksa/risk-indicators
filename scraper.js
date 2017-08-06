@@ -33,8 +33,9 @@ var awardsLength = data.getJSON().data.awards.length;
 				
 var disqualification;
 	for (var p = 0; p < awardsLength; p++) {
-		console.log(awards[p-1].status)
-		//if(awards[p-1].status=="unsuccessful"||awards[p-1].status=="unsuccessful")
+		if(awards[p].status=="unsuccessful"&&awards[awardsLength-1].status=="active")
+			{disqualification="yes"}
+		else {disqualification="no"}
 	}
 	console.log(disqualification)
 	
