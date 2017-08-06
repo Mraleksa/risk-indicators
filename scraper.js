@@ -20,17 +20,17 @@ function piv(){
 			dataset.forEach(function(item) {
 			*/	
 			//client.request({url: 'https://public.api.openprocurement.org/api/2.3/tenders/'+item.id})
-			client.request({url: 'https://public.api.openprocurement.org/api/2.3/tenders/f5fc672c3d034d1bbee42e8bfca41e4b'})
+			client.request({url: 'https://public.api.openprocurement.org/api/2.3/tenders/b644b8c962794d24b6b5550d3eb21eef'})
 					.then(function (data) {
 					
 	
 //1. Закупівлі з дискваліфікаціями всіх учасників, крім останнього
-var awards = data.getJSON().data//.awards;
-//var awardsLength = data.getJSON().data.awards.length;
+var awards = data.getJSON().data.awards;
+var awardsLength = data.getJSON().data.awards.length;
 console.log(awards)
 //console.log(awardsLength)
 	
-/*
+
 var disqualification;
 	for (var p = 0; p < awardsLength; p++) {
 			//t = t + item.values[p].value.count;
@@ -42,7 +42,7 @@ var disqualification;
 		}
 	}
 	console.log(disqualification)
-	*/
+	
 //Закупівлі з дискваліфікаціями всіх учасників, крім останнього	
 				
 			
