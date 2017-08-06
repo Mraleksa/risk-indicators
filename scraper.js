@@ -29,20 +29,11 @@ var awards = data.getJSON().data.awards;
 var awardsLength = data.getJSON().data.awards.length;
 //console.log(awards)
 console.log(awardsLength)
-console.log(awards[0].status)	
-console.log(awards[1].status)
-console.log(awards[2].status)
-console.log(awards[awardsLength-1].status)				
+				
 				
 var disqualification;
 	for (var p = 0; p < awardsLength; p++) {
-			//t = t + item.values[p].value.count;
-		if(awards[p].status=="unsuccessful"&&awards[awardsLength-1].status=="active"){
-			disqualification = "yes";
-		}
-		else {
-			disqualification = "no";
-		}
+	console.log(awards[p].status)
 	}
 	console.log(disqualification)
 	
