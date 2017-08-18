@@ -1,91 +1,148 @@
 var client = require('http-api-client');
-//var sqlite3 = require("sqlite3").verbose();
+var d3 = require("d3");
+var sqlite3 = require("sqlite3").verbose();
+var db = new sqlite3.Database("data.sqlite");
 
-// Open a database handle
-//var db = new sqlite3.Database("data.sqlite");
 
-//var currentCount =  "2017-05-05T09:59:03.623987+03:00"
-//var p=0; var p2=0;
  
+var start =  "2017-01-01T17:07:03.292060+03:00"
+console.log("старт: "+start); 
+var p=0; var p2=0;
+
 function piv(){  
-//p++;
-/*client.request({url: 'https://public.api.openprocurement.org/api/2.3/tenders?offset='+currentCount})
+p++;
+client.request({url: 'https://public.api.openprocurement.org/api/2.3/contracts?offset='+start})
+      .then(function (data) {
+		var dataset = data.getJSON().data;
+		start = data.getJSON().next_page.offset;			
+		console.log(start)
+		return dataset;
+	})	
+	.then(function (dataset) {			
+		dataset.forEach(function(item) {
+		client.request({url: 'https://public.api.openprocurement.org/api/2.3/contracts/'+item.id})
+		.then(function (data) {	
+
+	var change = data.getJSON().data.changes[data.getJSON().data.changes.length-1].rationaleTypes[0];
+	var changeLength = data.getJSON().data.changes.length;
+	
+	if(change=="itemPriceVariation"){		
+		var up=0;var down=0;
+		for (var p = 0; p < changeLength; p++) {
+		if(data.getJSON().data.changes[p].rationaleTypes[0]=="itemPriceVariation"){
+			up=up+1;
+		}
+		if(data.getJSON().data.changes[p].rationaleTypes[0]=="priceReduction"){
+			down=down+1;
+		}
+		}
+
+	//if(up>0){
+	
+		var upDates="";var downDate="";
+		for (var p = 0; p < changeLength; p++) {
+		if(data.getJSON().data.changes[p].rationaleTypes[0]=="itemPriceVariation"){
+			upDates = upDates+data.getJSON().data.changes[p].dateSigned+";"
+		}
+		if(data.getJSON().data.changes[p].rationaleTypes[0]=="priceReduction"){
+			downDate = downDate+data.getJSON().data.changes[p].dateSigned+";"
+		}	
+		}
+			
+//console.log(changeLength+"-"+upDate);
+	
+	if(data.getJSON().data.changes[0].rationaleTypes[0]=="itemPriceVariation")
+		{
+			var first = data.getJSON().data.changes[0].dateSigned;
+		}
+ 	
+	var tender_id = data.getJSON().data.tender_id;
+	var id = data.getJSON().data.id;		
+	var lotIdContracts = data.getJSON().data.items[0].relatedLot;
+	var dateSigned = data.getJSON().data.dateSigned;
+	var amount = data.getJSON().data.value.amount;	
+	var region = data.getJSON().data.procuringEntity.address.region;	
+	
+	
+		//////////save//////////////
+		client.request({url: 'https://public.api.openprocurement.org/api/2.3/tenders/'+data.getJSON().data.tender_id})
 		.then(function (data) {
-			var dataset = data.getJSON().data;			
-			currentCount = data.getJSON().next_page.offset;			
-			console.log(currentCount)			
-			return dataset;
-		})	
-		.then(function (dataset) {			
-			dataset.forEach(function(item) {
-			*/	
-			//client.request({url: 'https://public.api.openprocurement.org/api/2.3/tenders/'+item.id})
-			client.request({url: 'https://public.api.openprocurement.org/api/2.3/tenders/b644b8c962794d24b6b5550d3eb21eef'})
-					.then(function (data) {
-					
-	
-//1. Закупівлі з дискваліфікаціями всіх учасників, крім останнього
-var awards = data.getJSON().data.awards;
-var awardsLength = data.getJSON().data.awards.length;
-//console.log(awards)
-
-				
-				
-var disqualification;
-	for (var p = 0; p < awardsLength; p++) {
-		if(awards[p].status=="unsuccessful"&&awards[awardsLength-1].status=="active")
-			{disqualification="yes"}
-		else {disqualification="no"}
-	}
-	console.log(disqualification)
-	
-//Закупівлі з дискваліфікаціями всіх учасників, крім останнього	
-				
-			
-	/*		
-db.serialize(function() {
-db.run("CREATE TABLE IF NOT EXISTS data (dateModified TEXT,procurementMethod TEXT,numberOfBids INT)");
-var statement = db.prepare("INSERT INTO data VALUES (?,?,?)");
-
-statement.run(item.dateModified,data.getJSON().data.procurementMethod,data.getJSON().data.numberOfBids);
-
-statement.finalize();
-});
-*/
-	
-			
-					})
-					/*
-					.catch(function  (error) {
-						console.log("error_detale")
-						
-					});  
-				});
+		var startAmount;
+		if(data.getJSON().data.lots==undefined){
+			startAmount = data.getJSON().data.value.amount;
+		}
+		else {
+		for (var i = 1; i <= data.getJSON().data.lots.length; i++) {
+				if(lotIdContracts==data.getJSON().data.lots[data.getJSON().data.lots.length-(i)].id){
+				startAmount =  data.getJSON().data.lots[data.getJSON().data.lots.length-(i)].value.amount
+				};			
+			}
+		}
+		var save=Math.round((startAmount-amount)/startAmount*100);
+		var numberOfBids;
+		if(isNaN(data.getJSON().data.numberOfBids)){numberOfBids = 1}
+		else {numberOfBids=data.getJSON().data.numberOfBids};
 		
+		//////////SQLite//////////////
+	db.serialize(function() {	
+	db.run("CREATE TABLE IF NOT EXISTS data (dateModified TEXT,dateSigned TEXT,first TEXT,tenderID TEXT,procuringEntity TEXT,numberOfBids INT,startAmount INT,amount INT,save INT,cpv TEXT,region TEXT,up INT,down INT,downDate TEXT,upDates TEXT)");
+	var statement = db.prepare("INSERT INTO data VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"); 	
+	statement.run(
+	item.dateModified,
+	dateSigned,
+	first,
+	data.getJSON().data.tenderID,
+	data.getJSON().data.procuringEntity.name.toUpperCase(),
+	numberOfBids,
+	startAmount,
+	amount,
+	save,
+	data.getJSON().data.items[0].classification.description,
+	region,
+	up,
+	down,
+	downDate,
+	upDates
+	);
+	statement.finalize();
+	});
+	//////////SQLiteEnd//////////////
+	
 		})
-		
-		.then(function () {	
-		if (p<3){piv ();}		
+		.catch(function  (error) {									
+		}); 
+		//////////saveEnd//////////////
+	
+	
+	}		
+	})
+	.catch(function  (error) {
+		//console.log("error_detale2")				
+	});  
+	});	
+	})
+	.catch(function  (error) {
+		//console.log("error_detale3")				
+	})
+	.then(function () {	
+		if (p<10) {
+			setTimeout(function() {piv ();},10000);
+		}	
 		else {
 			console.log("stop")
-				p=0;
-				p2++;
-				console.log(p2)
-			setTimeout(function() {
-			
-				if (p2 < 2) {
-					piv ();
-				}
-				else {console.log("STOP")}
-				}, 5000);
-		}		
-							
+			p=0;
+			p2++;
+			if (p2 < 3) {
+				setTimeout(function() {piv ();},20000);
+			}
+		console.log("STOP")
+		//console.log(start.replace(/T.*/, ""))
+		}							
 		})
-		.catch( function (error) {
+	.catch( function (error) {
 		console.log("error")
 		piv ();
-		});   
-		*/
+	});   					
 }
 
 piv ();	
